@@ -8,7 +8,8 @@ public class BookSlotDetector : MonoBehaviour
     private bool doorMoved = false;
 
     public GameObject secretDoorShelf;
-    public float doorMoveDuration = 1f;      // seconds for smooth movement
+    public float doorMoveDuration = 1f;
+    public Vector3 moveOffset = new Vector3(0f, 0f, 2f); // XYZ movement in world space
 
     void Start()
     {
@@ -34,14 +35,17 @@ public class BookSlotDetector : MonoBehaviour
             {
                 carrier.PlaceCurrentItem(slot.transform);
                 slot.IsOccupied = true;
+
                 Collider slotCollider = other.GetComponent<Collider>();
-                if (slotCollider != null) slotCollider.enabled = false;
+                if (slotCollider != null)
+                    slotCollider.enabled = false;
 
                 if (!doorMoved && secretDoorShelf != null)
                 {
                     StartCoroutine(MoveDoorSmooth());
                     doorMoved = true;
                 }
+
                 hasPlaced = true;
             }
         }
@@ -50,7 +54,7 @@ public class BookSlotDetector : MonoBehaviour
     private IEnumerator MoveDoorSmooth()
     {
         Vector3 startPos = secretDoorShelf.transform.position;
-        Vector3 endPos = startPos + Vector3.right * 2f; // 2 meters right
+        Vector3 endPos = startPos + moveOffset;
         float elapsed = 0f;
 
         while (elapsed < doorMoveDuration)
@@ -61,7 +65,7 @@ public class BookSlotDetector : MonoBehaviour
             yield return null;
         }
         secretDoorShelf.transform.position = endPos;
-        Debug.Log("SecretDoorShelf moved smoothly 2 meters right.");
+        Debug.Log($"SecretDoorShelf moved by {moveOffset} over {doorMoveDuration} seconds.");
     }
 
     private void OnDisable()
